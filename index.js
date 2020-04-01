@@ -6,11 +6,11 @@ const cors = require('cors');
 const { addUser, removeUser, getUser, getUsersInRoom } = require('./users');
 
 const router = require('./router');
-
+const helmet = require('helmet');
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
-
+app.use(helmet());
 app.use(cors());
 app.use(router);
 
@@ -26,12 +26,10 @@ io.on('connect', socket => {
             user: 'admin',
             text: `${user.name}, welcome to room ${user.room}.`
         });
-        socket.broadcast
-            .to(user.room)
-            .emit('message', {
-                user: 'admin',
-                text: `${user.name} has joined!`
-            });
+        socket.broadcast.to(user.room).emit('message', {
+            user: 'admin',
+            text: `${user.name} has joined!`
+        });
 
         io.to(user.room).emit('roomData', {
             room: user.room,
